@@ -3,7 +3,7 @@
  * @Copyright: Yang
  * @Date: 2020-12-14 14:43:21
  * @LastEditors: Yang
- * @LastEditTime: 2020-12-15 01:05:32
+ * @LastEditTime: 2020-12-16 23:32:17
  * @FilePath: /Operating-System-class-design/src/vfs.cpp
  */
 #include "../include/vfs.h"
@@ -12,11 +12,11 @@
 #include <string>
 #include <vector>
 
-void Virtual_File_System::associate_with_a_disk(const std::string& diskname) {
+void Virtual_File_System::associateWithDisk(const std::string& diskname) {
     this->diskname = diskname;
     this->bfs.mount(diskname.c_str());
 
-    // read_single_super_block(&this->super_block);
+    /* 从磁盘中读取文件控制块和位图信息。 */
     read_index_node_bitmap(&this->inb);
     read_data_node_bitmap(&this->dnb);
 
@@ -30,16 +30,14 @@ void Virtual_File_System::init_exist_file_directory() {
          i++) {
         if (this->inb.bitmap[i] == false) continue;
 
-        // this->bfs.df_read(&tmp_directory, sizeof(Directory));
         read_single_directory_node(&tmp_directory, i);
-        /* this->exist_file_list.insert({std::string(tmp_directory.fullname),
-                                      tmp_directory.index_node_index}); */
+
         this->exist_file_list.emplace(tmp_directory.fullname,
                                       tmp_directory.index_node_index);
     }
 }
 
-void Virtual_File_System::open_file(const std::string& filename) {
+void Virtual_File_System::openFile(const std::string& filename) {
     auto file_itr = this->exist_file_list.find(filename);
     if (file_itr == this->exist_file_list.end())
         throw std::logic_error("无法打开一个不存在的文件。");
@@ -53,7 +51,7 @@ void Virtual_File_System::open_file(const std::string& filename) {
         {std::move(file_name), std::move(tmp_index_node)});
 }
 
-void Virtual_File_System::close_file(const std::string& filename) {
+void Virtual_File_System::closeFile(const std::string& filename) {
     auto file_itr = this->open_file_list.find(filename);
     if (file_itr == this->open_file_list.end())
         throw std::logic_error("无法关闭一个未打开的文件。");
@@ -86,6 +84,8 @@ void Virtual_File_System::removeFileByFileName(const std::string& filename) {
 
     write_single_index_node(&tmp_index_node, index_node_index);
     deallocate_specified_index_node(index_node_index);
+
+    this->exist_file_list.erase(filename);
 }
 
 void Virtual_File_System::save_right_now_status() {
@@ -112,7 +112,7 @@ std::string Virtual_File_System::getFileContentByFileName(
 
     for (unsigned short i = 0; i < tmp_index_node.blocks_count; i++) {
         void* buffer = malloc(BLOCK_SIZE);
-        buffer = read_single_data_block(buffer, i);
+        buffer = read_single_data_block(buffer, tmp_index_node.data_index[i]);
         content += std::string((char*)buffer);
     }
 
@@ -140,7 +140,6 @@ void Virtual_File_System::updateFileContentByFileName(
                 tmp_index_node.data_index[i]);
     };
 
-    // todo
     if (tmp_block_count > tmp_index_node.blocks_count) {
         /* 先申请新的数据块。 */
         for (auto i = tmp_index_node.blocks_count; i < tmp_block_count; i++) {

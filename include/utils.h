@@ -3,7 +3,7 @@
  * @Copyright: Yang
  * @Date: 2020-12-12 16:43:04
  * @LastEditors: Yang
- * @LastEditTime: 2020-12-15 00:54:39
+ * @LastEditTime: 2020-12-15 14:37:44
  * @FilePath: /Operating-System-class-design/include/utils.h
  */
 #ifndef __UTILS_H_
@@ -30,6 +30,7 @@ struct Index_node {
     short data_index[MAX_INDEX_COUNT_IN_A_INDEX_NODE];  // 索引的数据块下标。。
 };
 
+/* 文件目录/文件控制块。 */
 struct Directory {
     char fullname[MAX_FILE_NAME_SIZE];  // 文件全名。
     unsigned short index_node_index;  // 当前文件的磁盘索引块位置。
@@ -58,16 +59,5 @@ struct Super_block {
     unsigned short innode_blocks_start;  // 索引节点块开始的块编号。
     unsigned short data_blocks_start;    // 数据块开始的块编号。
 };
-/*
-struct Directory {
-    bool use_flag;  // 目录使用标记，false表示当前未被使用，true表示被使用。
-    char fullname[24];  // 文件全名。
-    // time_t create_time;           // 文件创建时间。
-    time_t last_modified_time;        // 最后修改时间。
-    time_t last_query_time;           // 最后查看时间。
-    unsigned short filesize;          // 文件大小（bytes）。
-    unsigned short index_node_index;  // 当前文件的磁盘索引块位置。
-    char align[8];                    // 用于内存对齐。
-}; */
 
 #endif  // __UTILS_H_

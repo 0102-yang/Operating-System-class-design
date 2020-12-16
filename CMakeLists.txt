@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(OS-class-design CXX)
 
-include_directories(./include)
+include_directories(./include ./unit_test)
 
 aux_source_directory(./src SRC_LIST)
 

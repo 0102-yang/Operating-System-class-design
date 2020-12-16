@@ -3,7 +3,7 @@
  * @Copyright: Yang
  * @Date: 2020-12-14 14:40:30
  * @LastEditors: Yang
- * @LastEditTime: 2020-12-15 00:50:16
+ * @LastEditTime: 2020-12-15 14:41:04
  * @FilePath: /Operating-System-class-design/include/vfs.h
  */
 #ifndef __VFS_H_
@@ -47,19 +47,19 @@ class Virtual_File_System {
      * @brief 将该虚拟文件系统关联一个磁盘文件。
      * @param diskname 磁盘名。
      */
-    void associate_with_a_disk(const std::string& diskname);
+    void associateWithDisk(const std::string& diskname);
 
     /**
      * @brief 打开一个文件。
      * @param filename 文件名。
      */
-    void open_file(const std::string& filename);
+    void openFile(const std::string& filename);
 
     /**
      * @brief 关闭一个文件。
      * @param filename 文件名。
      */
-    void close_file(const std::string& filename);
+    void closeFile(const std::string& filename);
 
     /**
      * @brief 通过文件名创建一个文件。
