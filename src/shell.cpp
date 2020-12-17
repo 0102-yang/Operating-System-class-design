@@ -1,7 +1,7 @@
 /*
  * @Author: ChenY
  * @Date: 2020-12-15 17:37:24
- * @LastEditTime: 2020-12-16 23:27:24
+ * @LastEditTime: 2020-12-17 15:34:23
  * @FilePath: /Operating-System-class-design/src/shell.cpp
  */
 #include "../include/shell.h"
@@ -53,6 +53,8 @@ void shell::cmdParser() {
         } else if (cmd_.substr(0, 3) == "man") {
             // std::cout << "调用man" << std::endl;
             cmdHelper(cmd_);
+        } else if (cmd_.substr(0, 3) == "cat") {
+            catFile(cmd_);
         } else {
             std::cout << "命令错误！！！" << std::endl;
             continue;
@@ -172,8 +174,12 @@ void shell::catFile(std::string tempStr) {
     }
     for (size_t i = 0; i < allFile_.size(); i++)
         if (cmdContent_ == allFile_[i]) {
-            std::string fileContent_ = vfs_->getFileContentByFileName(tempStr);
+            vfs_->openFile(cmdContent_);
+            std::string fileContent_ =
+                vfs_->getFileContentByFileName(cmdContent_);
             std::cout << fileContent_ << std::endl;
+            vfs_->closeFile(cmdContent_);
+            return;
         }
     std::cout << "不存在这个文件" << std::endl;
 }
@@ -194,6 +200,7 @@ void shell::viFile(std::string tempStr) {
     }
     for (size_t i = 0; i < allFile_.size(); i++)
         if (cmdContent_ == allFile_[i]) {
+            vfs_->openFile(cmdContent_);
             std::string fileContent_ =
                 vfs_->getFileContentByFileName(cmdContent_);
             while (true) {
@@ -201,11 +208,12 @@ void shell::viFile(std::string tempStr) {
                 std::cout << "i(插入);w(写入文件);q(退出);d(删除):"
                           << std::endl;
                 char ch = getchar();
+                std::cin.get();
                 for (int i = 0; i < 50; i++) insertContent_[i] = '\0';
                 switch (ch) {
                     case 'i':
                         std::cout << "请输入插入位置：";
-                        std::cin >> site_;
+                        (std::cin >> site_).get();
                         if (site_ < 0 || site_ > fileContent_.size()) {
                             std::cout << "插入位置错误" << std::endl;
                             break;
@@ -221,6 +229,7 @@ void shell::viFile(std::string tempStr) {
                                                           fileContent_);
                         break;
                     case 'q':
+                        vfs_->closeFile(cmdContent_);
                         return;
                     case 'd':
                         std::cout << "请输入删除位置：";
@@ -260,11 +269,25 @@ void shell::lsFile(std::string tempStr) {
     if (tempStr == "ls -a" || tempStr == "ls") {
         std::cout << "调用ls -a" << std::endl;
         // fixme 一行打印5个数据有误
-        for (int i = 0; i < allFile_.size(); i++) {
+        /* for (int i = 0; i < allFile_.size(); i++) {
             std::cout << allFile_[i] << "   ";
             if (i % 5 == 0) std::cout << '\n';
         }
-        if (allFile_.size() % 5 == 0) std::cout << '\n';
+        if (allFile_.size() % 5 == 0) std::cout << '\n'; */
+
+        int count = 0;
+        auto size = allFile_.size();
+        for (size_t i = 0; i < size; i++) {
+            if (++count / 5 == 0) {
+                std::cout << allFile_[i] << "\t";
+            } else {
+                std::cout << allFile_[i] << std::endl;
+                count = 0;
+            }
+        }
+        if (count != 0) {
+            std::cout << '\n';
+        }
         return;
     } else if (tempStr == "ls -l") {
         std::cout << "调用ls -l" << std::endl;
@@ -272,7 +295,13 @@ void shell::lsFile(std::string tempStr) {
             struct Index_node file =
                 vfs_->getFileAttributeByFileName(allFile_[i]);
             time_ = localtime(&file.last_modified_time);
-            std::cout << asctime(time_);
+            std::cout << "文件名： " << allFile_[i] << std::endl;
+            if (0 != file.last_modified_time) {
+                std::cout << "最后修改时间： " << asctime(time_);
+            } else {
+                std::cout << "该文件从未被修改过。" << std::endl;
+            }
+            std::cout << "文件大小： " << file.filesize << '\n' << std::endl;
             // printf("%-10d %-46s", file.filesize, allFile_[i].c_str());
         }
         return;

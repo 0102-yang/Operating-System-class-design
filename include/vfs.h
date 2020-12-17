@@ -3,7 +3,7 @@
  * @Copyright: Yang
  * @Date: 2020-12-14 14:40:30
  * @LastEditors: Yang
- * @LastEditTime: 2020-12-15 14:41:04
+ * @LastEditTime: 2020-12-17 15:29:36
  * @FilePath: /Operating-System-class-design/include/vfs.h
  */
 #ifndef __VFS_H_
@@ -108,10 +108,11 @@ class Virtual_File_System {
      * @param fileName 文件名。
      */
     Index_node getFileAttributeByFileName(const std::string& fileName) {
-        auto file_itr = this->open_file_list.find(fileName);
-        if (file_itr == this->open_file_list.end())
+        auto file_itr = this->exist_file_list.find(fileName);
+        if (file_itr == this->exist_file_list.end())
             throw std::logic_error("没有该文件或未打开文件。");
-        return file_itr->second;
+        Index_node i;
+        return *read_single_index_node(&i, file_itr->second);
     }
 
    private:
