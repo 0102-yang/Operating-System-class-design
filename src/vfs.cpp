@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-void Virtual_File_System::associateWithDisk(const std::string& diskname) {
+void Virtual_File_System::associateWithDisk(const std::string &diskname) {
     this->diskname = diskname;
     this->bfs.mount(diskname.c_str());
 
@@ -37,7 +37,7 @@ void Virtual_File_System::init_exist_file_directory() {
     }
 }
 
-void Virtual_File_System::openFile(const std::string& filename) {
+void Virtual_File_System::openFile(const std::string &filename) {
     auto file_itr = this->exist_file_list.find(filename);
     if (file_itr == this->exist_file_list.end())
         throw std::logic_error("无法打开一个不存在的文件。");
@@ -48,10 +48,10 @@ void Virtual_File_System::openFile(const std::string& filename) {
     read_single_index_node(&tmp_index_node, offset);
 
     this->open_file_list.insert(
-        {std::move(file_name), std::move(tmp_index_node)});
+            {std::move(file_name), std::move(tmp_index_node)});
 }
 
-void Virtual_File_System::closeFile(const std::string& filename) {
+void Virtual_File_System::closeFile(const std::string &filename) {
     auto file_itr = this->open_file_list.find(filename);
     if (file_itr == this->open_file_list.end())
         throw std::logic_error("无法关闭一个未打开的文件。");
@@ -62,7 +62,7 @@ void Virtual_File_System::closeFile(const std::string& filename) {
     this->open_file_list.erase(filename);
 }
 
-void Virtual_File_System::createFileByFileName(const std::string& filename) {
+void Virtual_File_System::createFileByFileName(const std::string &filename) {
     if (this->exist_file_list.find(filename) != this->exist_file_list.end())
         throw std::logic_error("文件名已经存在，无法创建文件。");
 
@@ -72,7 +72,7 @@ void Virtual_File_System::createFileByFileName(const std::string& filename) {
     this->exist_file_list.insert({filename, free_index_node_index});
 }
 
-void Virtual_File_System::removeFileByFileName(const std::string& filename) {
+void Virtual_File_System::removeFileByFileName(const std::string &filename) {
     auto file_itr = this->exist_file_list.find(filename);
     if (file_itr == this->exist_file_list.end())
         throw std::logic_error("无法删除一个不存在的文件。");
@@ -101,43 +101,43 @@ void Virtual_File_System::save_right_now_status() {
 }
 
 std::string Virtual_File_System::getFileContentByFileName(
-    const std::string& fileName) {
+        const std::string &fileName) {
     auto file_ptr = this->open_file_list.find(fileName);
     if (file_ptr == this->open_file_list.end())
         throw std::logic_error("无法获取文件的内容，或许没有打开文件。");
 
     std::string content;
 
-    auto& tmp_index_node = file_ptr->second;
+    auto &tmp_index_node = file_ptr->second;
 
     for (unsigned short i = 0; i < tmp_index_node.blocks_count; i++) {
-        void* buffer = malloc(BLOCK_SIZE);
+        void *buffer = malloc(BLOCK_SIZE);
         buffer = read_single_data_block(buffer, tmp_index_node.data_index[i]);
-        content += std::string((char*)buffer);
+        content += std::string((char *) buffer);
     }
 
     tmp_index_node.last_query_time = time(NULL);
-    return content.substr(0, tmp_index_node.filesize);
+    return content.substr(0, tmp_index_node.fileSize);
 }
 
 void Virtual_File_System::updateFileContentByFileName(
-    const std::string& fileName, const std::string& fileContent) {
+        const std::string &fileName, const std::string &fileContent) {
     auto file_itr = this->open_file_list.find(fileName);
     if (file_itr == this->open_file_list.end())
         throw std::logic_error("无法更新指定文件内容。");
 
-    auto& tmp_index_node = file_itr->second;
+    auto &tmp_index_node = file_itr->second;
 
     auto tmp_block_count = fileContent.size() / BLOCK_SIZE + 1;
 
-    auto write_file = [this, &fileContent](Index_node& tmp_index_node,
+    auto write_file = [this, &fileContent](Index_node &tmp_index_node,
                                            unsigned long tmp_block_count) {
         for (size_t i = 0; i < tmp_block_count; i++)
             write_single_data_block(
-                const_cast<char*>(
-                    fileContent.substr(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE)
-                        .c_str()),
-                tmp_index_node.data_index[i]);
+                    const_cast<char *>(
+                            fileContent.substr(i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE)
+                                    .c_str()),
+                    tmp_index_node.data_index[i]);
     };
 
     if (tmp_block_count > tmp_index_node.blocks_count) {
@@ -164,6 +164,6 @@ void Virtual_File_System::updateFileContentByFileName(
         write_file(tmp_index_node, tmp_block_count);
     }
 
-    tmp_index_node.filesize = fileContent.size();
+    tmp_index_node.fileSize = fileContent.size();
     tmp_index_node.last_modified_time = time(NULL);
 }

@@ -9,15 +9,15 @@
 #ifndef __UTILS_H_
 #define __UTILS_H_
 
-typedef FILE* disk_pointer;  // 磁盘内控制I/O流指针。
-typedef FILE* file_pointer;  // 文件内控制I/O流指针。
+typedef FILE *disk_pointer;  // 磁盘内控制I/O流指针。
+typedef FILE *file_pointer;  // 文件内控制I/O流指针。
 
 constexpr size_t BLOCK_SIZE = 0x1000;    // 物理块的大小。
 constexpr size_t BLOCKS_CAPACITY = 200;  // 磁盘物理块容量。
 constexpr size_t MAX_INDEX_NODES = 64;   // 索引节点数量最大值。
 constexpr size_t MAX_DATA_BLOCKS = 192;  // 数据块数量最大值。
 constexpr size_t MAX_INDEX_COUNT_IN_A_INDEX_NODE =
-    118;  // 索引节点内索引的最大个数。
+        118;  // 索引节点内索引的最大个数。
 constexpr size_t MAX_FILE_NAME_SIZE = 46;
 
 /* 索引节点数据结构。 */
@@ -25,7 +25,7 @@ struct Index_node {
     // time_t create_time;           // 文件创建时间。
     time_t last_modified_time = 0;  // 最后修改时间。
     time_t last_query_time = 0;     // 最后查看时间。
-    unsigned short filesize = 0;    // 文件大小（bytes）。
+    unsigned short fileSize = 0;    // 文件大小（bytes）。
     unsigned short blocks_count = 0;  // 当前索引节点索引的数据块数量。
     short data_index[MAX_INDEX_COUNT_IN_A_INDEX_NODE];  // 索引的数据块下标。。
 };

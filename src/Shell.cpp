@@ -305,8 +305,8 @@ void Shell::lsFile(const std::string &tempStr) {
             } else {
                 std::cout << "该文件从未被修改过。" << std::endl;
             }
-            std::cout << "文件大小： " << file.filesize << '\n' << std::endl;
-            // printf("%-10d %-46s", file.filesize, allFile_[i].c_str());
+            std::cout << "文件大小： " << file.fileSize << '\n' << std::endl;
+            // printf("%-10d %-46s", file.fileSize, allFile_[i].c_str());
         }
         return;
     } else {
