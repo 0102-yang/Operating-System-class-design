@@ -11,12 +11,12 @@
 #include <vector>
 
 #include "../include/bfs.h"
-#include "../include/shell.h"
+#include "../include/Shell.h"
 #include "../include/utils.h"
 #include "../include/vfs.h"
 
-int main(int argc, char const* argv[]) {
-    shell s;
+int main(int argc, char const *argv[]) {
+    Shell s;
     s.cmdParser();
 
     return 0;

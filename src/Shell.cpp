@@ -2,11 +2,11 @@
  * @Author: ChenY
  * @Date: 2020-12-15 17:37:24
  * @LastEditTime: 2020-12-17 15:34:23
- * @FilePath: /Operating-System-class-design/src/shell.cpp
+ * @FilePath: /Operating-System-class-design/src/Shell.cpp
  */
-#include "../include/shell.h"
+#include "../include/Shell.h"
 
-shell::shell() {
+Shell::Shell() {
     // 系统用户终端显示界面
     title_ = "[Administrator] <> ";
     // 创建文件系统，命名为“homework.txt”
@@ -15,22 +15,24 @@ shell::shell() {
     vfs_->associateWithDisk(disk);
 }
 
-shell::~shell() { delete vfs_; }
+Shell::~Shell() { delete vfs_; }
 
-void shell::cmdParser() {
+void Shell::cmdParser() {
     char cmd[50];
     char ch;
     while (true) {
         allFile_.clear();
         allFile_ = vfs_->getAllFileName(allFile_);
         // note 更简易的写法： cmd[50] = {0};
-        for (int i = 0; i < 50; i++) cmd[i] = '\0';
+        for (char &i : cmd) {
+            i = '\0';
+        }
 
         std::cout << title_;
-        ch = getchar();
+        ch = (char) getchar();
         if (ch == '\n') continue;
         std::cin.getline(cmd, 50);
-        cmd_ = cmd;
+        cmd_.assign(cmd);
         cmd_ = ch + cmd_;
         // std::cout << cmd_ << std::endl;
         if (cmd_.substr(0, 4) == "exit" && cmd_.size() == 4) {
@@ -62,8 +64,8 @@ void shell::cmdParser() {
     }
 }
 
-void shell::cmdHelper(std::string tempStr) {
-    int flag = tempStr.find(' ');
+void Shell::cmdHelper(const std::string &tempStr) {
+    size_t flag = tempStr.find(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man man查看" << std::endl;
         return;
@@ -95,7 +97,7 @@ void shell::cmdHelper(std::string tempStr) {
         std::cout << "没有这个命令" << std::endl;
 }
 
-void shell::touchFile(std::string tempStr) {
+void Shell::touchFile(const std::string &tempStr) {
     size_t flag = tempStr.find_first_of(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man touch查看" << std::endl;
@@ -108,16 +110,17 @@ void shell::touchFile(std::string tempStr) {
         std::cout << "命令格式错误，请通过man touch查看" << std::endl;
         return;
     }
-    for (int i = 0; i < allFile_.size(); i++)
-        if (cmdContent_ == allFile_[i]) {
+    for (auto &i : allFile_) {
+        if (cmdContent_ == i) {
             std::cout << "已经存在同名的文件" << std::endl;
             return;
         }
+    }
     vfs_->createFileByFileName(cmdContent_);
 }
 
-void shell::rmFile(std::string tempStr) {
-    int flag = tempStr.find(' ');
+void Shell::rmFile(const std::string &tempStr) {
+    size_t flag = tempStr.find(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man rm查看" << std::endl;
         return;
@@ -128,8 +131,8 @@ void shell::rmFile(std::string tempStr) {
         std::cout << "命令格式错误，请通过man rm查看" << std::endl;
         return;
     }
-    for (size_t i = 0; i < allFile_.size(); i++) {
-        if (cmdContent_ == allFile_[i]) {
+    for (auto &i : allFile_) {
+        if (cmdContent_ == i) {
             vfs_->removeFileByFileName(cmdContent_);
             return;
         }
@@ -137,8 +140,8 @@ void shell::rmFile(std::string tempStr) {
     std::cout << "不存在这个文件" << std::endl;
 }
 
-void shell::mvFile(std::string tempStr) {
-    int flag = tempStr.find(' ');
+void Shell::mvFile(const std::string &tempStr) {
+    size_t flag = tempStr.find(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man mv查看" << std::endl;
         return;
@@ -160,8 +163,8 @@ void shell::mvFile(std::string tempStr) {
     // 没有相关的APi，暂停
 }
 
-void shell::catFile(std::string tempStr) {
-    int flag = tempStr.find(' ');
+void Shell::catFile(const std::string &tempStr) {
+    size_t flag = tempStr.find(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man cat查看" << std::endl;
         return;
@@ -172,22 +175,23 @@ void shell::catFile(std::string tempStr) {
         std::cout << "命令格式错误，请通过man cat查看" << std::endl;
         return;
     }
-    for (size_t i = 0; i < allFile_.size(); i++)
-        if (cmdContent_ == allFile_[i]) {
+    for (auto &i : allFile_) {
+        if (cmdContent_ == i) {
             vfs_->openFile(cmdContent_);
             std::string fileContent_ =
-                vfs_->getFileContentByFileName(cmdContent_);
+                    vfs_->getFileContentByFileName(cmdContent_);
             std::cout << fileContent_ << std::endl;
             vfs_->closeFile(cmdContent_);
             return;
         }
+    }
     std::cout << "不存在这个文件" << std::endl;
 }
 
-void shell::viFile(std::string tempStr) {
+void Shell::viFile(const std::string &tempStr) {
     int site_;
     char insertContent_[50];
-    int flag = tempStr.find(' ');
+    size_t flag = tempStr.find(' ');
     if (flag >= tempStr.size()) {
         std::cout << "命令格式错误，请通过man cat查看" << std::endl;
         return;
@@ -198,18 +202,18 @@ void shell::viFile(std::string tempStr) {
         std::cout << "命令格式错误，请通过man cat查看" << std::endl;
         return;
     }
-    for (size_t i = 0; i < allFile_.size(); i++)
-        if (cmdContent_ == allFile_[i]) {
+    for (auto &i : allFile_)
+        if (cmdContent_ == i) {
             vfs_->openFile(cmdContent_);
             std::string fileContent_ =
-                vfs_->getFileContentByFileName(cmdContent_);
+                    vfs_->getFileContentByFileName(cmdContent_);
             while (true) {
                 std::cout << "文件内容如下：\n" << fileContent_ << std::endl;
                 std::cout << "i(插入);w(写入文件);q(退出);d(删除):"
                           << std::endl;
-                char ch = getchar();
+                char ch = (char) getchar();
                 std::cin.get();
-                for (int i = 0; i < 50; i++) insertContent_[i] = '\0';
+                for (char &content : insertContent_) content = '\0';
                 switch (ch) {
                     case 'i':
                         std::cout << "请输入插入位置：";
@@ -221,8 +225,8 @@ void shell::viFile(std::string tempStr) {
                         std::cout << "请输入插入内容：";
                         std::cin.getline(insertContent_, 50);
                         fileContent_ =
-                            fileContent_.substr(0, site_) + insertContent_ +
-                            fileContent_.substr(site_, fileContent_.size());
+                                fileContent_.substr(0, site_) + insertContent_ +
+                                fileContent_.substr(site_, fileContent_.size());
                         break;
                     case 'w':
                         vfs_->updateFileContentByFileName(cmdContent_,
@@ -245,12 +249,12 @@ void shell::viFile(std::string tempStr) {
                             break;
                         else if (quantity > site_) {
                             fileContent_ =
-                                fileContent_.substr(site_, fileContent_.size());
+                                    fileContent_.substr(site_, fileContent_.size());
                             break;
                         } else {
                             fileContent_ =
-                                fileContent_.substr(0, site_ - quantity) +
-                                fileContent_.substr(site_, fileContent_.size());
+                                    fileContent_.substr(0, site_ - quantity) +
+                                    fileContent_.substr(site_, fileContent_.size());
                             break;
                         }
                     default:
@@ -261,8 +265,8 @@ void shell::viFile(std::string tempStr) {
     std::cout << "不存在这个文件" << std::endl;
 }
 
-void shell::lsFile(std::string tempStr) {
-    if (allFile_.size() == 0) {
+void Shell::lsFile(const std::string &tempStr) {
+    if (allFile_.empty()) {
         std::cout << "无文件" << std::endl;
         return;
     }
@@ -291,11 +295,11 @@ void shell::lsFile(std::string tempStr) {
         return;
     } else if (tempStr == "ls -l") {
         std::cout << "调用ls -l" << std::endl;
-        for (int i = 0; i < allFile_.size(); i++) {
+        for (auto &i : allFile_) {
             struct Index_node file =
-                vfs_->getFileAttributeByFileName(allFile_[i]);
+                    vfs_->getFileAttributeByFileName(i);
             time_ = localtime(&file.last_modified_time);
-            std::cout << "文件名： " << allFile_[i] << std::endl;
+            std::cout << "文件名： " << i << std::endl;
             if (0 != file.last_modified_time) {
                 std::cout << "最后修改时间： " << asctime(time_);
             } else {
@@ -316,8 +320,8 @@ void shell::lsFile(std::string tempStr) {
             std::cout << "命令格式错误，请通过man ls查看" << std::endl;
             return;
         }
-        for (int i = 0; i < allFile_.size(); i++)
-            if (cmdContent_ == allFile_[i]) {
+        for (auto &i : allFile_)
+            if (cmdContent_ == i) {
                 std::cout << cmdContent_ << std::endl;
                 return;
             }
