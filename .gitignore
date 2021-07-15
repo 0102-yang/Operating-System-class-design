@@ -4,3 +4,5 @@ temp.cpp
 temp.md
 disk
 unit_test
+cmake-build-debug
+.idea
